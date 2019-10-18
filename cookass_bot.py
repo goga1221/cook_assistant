@@ -3,8 +3,8 @@ from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater, ConversationHandler, CommandHandler
 from telegram.ext import MessageHandler, RegexHandler, Filters
 from handler import welc_user, get_recipe, send_help, get_favorite, own_recipe_add, own_recipe_get_ingr, own_recipe_full, own_recipe_skip
-from settings import PROXY, USER_EMOJI
-from proxy import TOKEN
+from settings import USER_EMOJI
+from proxy import TOKEN, PROXY
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
