@@ -110,3 +110,5 @@ PROXY = {'proxy_url': 'socks5://t3.learn.python.ru:1080',
 
 
 USER_EMOJI = [':smiley_cat:',':smiling_imp:',':panda_face:',':dog:',  ':smile:']
+
+proxy.py

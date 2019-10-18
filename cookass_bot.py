@@ -4,6 +4,7 @@ from telegram.ext import Updater, ConversationHandler, CommandHandler
 from telegram.ext import MessageHandler, RegexHandler, Filters
 from handler import welc_user, get_recipe, send_help, get_favorite, own_recipe_add, own_recipe_get_ingr, own_recipe_full, own_recipe_skip
 from settings import PROXY, USER_EMOJI
+from proxy import TOKEN
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -11,14 +12,8 @@ logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     )
 
 
-PROXY = {'proxy_url': 'socks5://t3.learn.python.ru:1080',
-    'urllib3_proxy_kwargs': {'username': 'learn', 'password': 'python'}}
-
-
-USER_EMOJI = [':smiley_cat:',':smiling_imp:',':panda_face:',':dog:',  ':smile:']
-
 def main():
-    cook_bot = Updater('840072894:AAH3pR7cMN94E4SFwJNP6dMiUHAJefMvrm4', request_kwargs=PROXY)
+    cook_bot = Updater(TOKEN, request_kwargs=PROXY)
     logging.info('Бот запускается')
 
     disp=cook_bot.dispatcher
