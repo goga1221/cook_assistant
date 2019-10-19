@@ -1,6 +1,8 @@
 import sqlite3
 
-class DB:
+existing_tables = ['recepies','clients','favourites']
+class DB:    
+
     def __init__(self):
         """Constructor"""
         pass
@@ -28,26 +30,42 @@ class DB:
         connection.commit()
         connection.close()
 
-    def query(self, sql: str):
-        connection = sqlite3.connect('cook_ass_db')
-        cursor = connection.cursor()
-        cursor.execute(sql)
-        ans = cursor.fetchall()
-        connection.commit()
-        connection.close()
+    def query(self, table: str, sql: str):
+        if table in existing_tables:
+            connection = sqlite3.connect('cook_ass_db')
+            cursor = connection.cursor()
+            try:
+                cursor.execute(sql)
+            except sqlite3.IntegrityError as err: print(err)     
+            ans = cursor.fetchall()
+            connection.commit()
+            connection.close()
+        else: print('There is no such table')   
         return ans
 
-    def insert_many(self, table: str, values: list):
-        connection = sqlite3.connect('cook_ass_db')
-        cursor = connection.cursor()
-        if (table == "recepies"):
-            cursor.executemany("INSERT INTO recepies VALUES (?,?,?,?,?)", values)
-        if (table == "clients"):
-            cursor.executemany("INSERT INTO clients VALUES (?,?)", values)
-        if (table == "favourites"):
-            cursor.executemany("INSERT INTO favourites VALUES (?,?,?)", values)
-        connection.commit()
-        connection.close()
+    def insert_many(self, table: list, values: list):
+        if table in existing_tables:
+            connection = sqlite3.connect('cook_ass_db')
+            cursor = connection.cursor()
+            
+            if (table == "recepies"):
+                try:
+                    cursor.executemany("INSERT INTO recepies VALUES (?,?,?,?,?)", values)
+                except sqlite3.IntegrityError as err: print(err)   
+
+            if (table == "clients"):
+                try:
+                    cursor.executemany("INSERT INTO clients VALUES (?,?)", values)
+                except sqlite3.IntegrityError as err: print(err)
+
+            if (table == "favourites"):
+                try:
+                    cursor.executemany("INSERT INTO favourites VALUES (?,?,?)", values)
+                except sqlite3.IntegrityError as err: print(err)
+
+            connection.commit()
+            connection.close()
+        else: print('There is no such tables')
               
     
 
