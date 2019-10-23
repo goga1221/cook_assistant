@@ -13,21 +13,28 @@ def get_all_ingr(html):
     rec_name = soup.find('table', class_='ingr').find_all('tr',['ingr_tr_0', 'ingr_tr_1'])
     ingredients = []
     for ingr in rec_name:
-        a = ingr.find('td').get('span')
+        a = ingr.text
         ingredients.append(a)
     return ingredients
 
+def get_dish_name(html):
+    soup = BeautifulSoup(html,'lxml')
+    dish_name = soup.findAll("h1",class_ = "title ")
+    data = dish_name
+
+    return data      
 
 
 def main():
     
-    url = 'https://www.russianfood.com/recipes/recipe.php?rid=118303'
+    url = 'https://www.russianfood.com/recipes/recipe.php?rid=68264'
     
     all_ingr = get_all_ingr(get_html(url))
 
     for i in all_ingr:
         print(i)
 
+    get_dish_name(get_html(url))
     
 
 if __name__ == '__main__':
