@@ -15,27 +15,27 @@ def get_all_ingr(html):
     for ingr in rec_name:
         a = ingr.text
         ingredients.append(a)
-    return ingredients
+    return [s.strip('\n') for s in ingredients]
 
 def get_dish_name(html):
     soup = BeautifulSoup(html,'lxml')
-    dish_name = soup.findAll("h1",class_ = "title ")
-    data = dish_name
-
-    return data      
+    print(soup.h1.text)   
 
 
 def main():
     
     url = 'https://www.russianfood.com/recipes/recipe.php?rid=68264'
-    
+       
+    get_dish_name(get_html(url))
+
     all_ingr = get_all_ingr(get_html(url))
 
     for i in all_ingr:
         print(i)
 
-    get_dish_name(get_html(url))
+
     
+
 
 if __name__ == '__main__':
     main()
