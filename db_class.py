@@ -59,9 +59,9 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute("""SELECT name, category, recepie, ingredients FROM recepies ORDER BY RANDOM() LIMIT 1""")
+            cursor.execute("""SELECT name, category, ingredients, recepie FROM recepies ORDER BY RANDOM() LIMIT 1""")
         except sqlite3.IntegrityError as err: print(err)     
-        ans = cursor.fetchall()
+        ans = cursor.fetchone()          
         connection.commit()
         connection.close()
         return ans
@@ -70,22 +70,27 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies WHERE id in \
+            cursor.execute(f"SELECT name, category, ingredients, recepie FROM recepies WHERE id in \
             (SELECT id_recepie FROM favourites WHERE id_client = \
             (SELECT id FROM clients WHERE name = '{client}'))")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
+        res = []
+        for i in ans:
+            res.append(f'Название: {i[0]} \nКатегория:{i[1]} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
+        print(res)
+        res = '\n\n'.join(res)
         connection.commit()
         connection.close()
-        return ans
+        return res
 
     def get_recepie_by_name(self, rec_name: str):
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies WHERE name = '{rec_name}'")
+            cursor.execute(f"SELECT name, category, ingredients, recepie FROM recepies WHERE name = '{rec_name}'")
         except sqlite3.IntegrityError as err: print(err)     
-        ans = cursor.fetchall()
+        ans = cursor.fetchall()        
         connection.commit()
         connection.close()
         return ans
