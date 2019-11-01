@@ -5,6 +5,7 @@ from telegram.ext import MessageHandler, RegexHandler, Filters
 from handler import welc_user, get_recipe, send_help, get_favorite, own_recipe_add, own_recipe_get_ingr, own_recipe_full, own_recipe_skip,get_rec_by_name
 from settings import USER_EMOJI
 from proxy import TOKEN, PROXY
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,

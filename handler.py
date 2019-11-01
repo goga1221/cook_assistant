@@ -2,6 +2,7 @@ import logging
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ConversationHandler
 from db_class import * 
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 cs_db = DB()
 cs_db.create_db()
