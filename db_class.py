@@ -61,7 +61,7 @@ class DB:
         try:
             cursor.execute("""SELECT name, category, recepie, ingredients FROM recepies ORDER BY RANDOM() LIMIT 1""")
         except sqlite3.IntegrityError as err: print(err)     
-        ans = cursor.fetchall()
+        ans = cursor.fetchone()
         connection.commit()
         connection.close()
         return ans
