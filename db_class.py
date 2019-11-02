@@ -46,7 +46,7 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         existing_tables = {'recepies' : 4,'clients' : 1 ,'favourites': 2}
-        tables_col = {'recepies' : "'name', 'category','recepie','ingredients'",'clients' : "name" ,'favourites': "'id_client', 'id_recepie'"} 
+        tables_col = {'recepies' : 'name, category,recepie,ingredients','clients' : 'name' ,'favourites': 'id_client, id_recepie'} 
         if table in existing_tables:
             try:
                 query = f"INSERT INTO {table} ({tables_col[table]}) VALUES ({','.join('?' for i in range(existing_tables[table]))})"
@@ -59,9 +59,9 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute("""SELECT name, category, ingredients, recepie FROM recepies ORDER BY RANDOM() LIMIT 1""")
+            cursor.execute("""SELECT name, category, recepie, ingredients FROM recepies ORDER BY RANDOM() LIMIT 1""")
         except sqlite3.IntegrityError as err: print(err)     
-        ans = cursor.fetchone()          
+        ans = cursor.fetchone()
         connection.commit()
         connection.close()
         return ans
@@ -70,27 +70,22 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, ingredients, recepie FROM recepies WHERE id in \
+            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies WHERE id in \
             (SELECT id_recepie FROM favourites WHERE id_client = \
             (SELECT id FROM clients WHERE name = '{client}'))")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
-        res = []
-        for i in ans:
-            res.append(f'Название: {i[0]} \nКатегория:{i[1]} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
-        print(res)
-        res = '\n\n'.join(res)
         connection.commit()
         connection.close()
-        return res
+        return ans
 
-    def get_recepie_by_name(self, rec_name: str):
+    def get_recepie_by_name(self, rec_name: str):        
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, ingredients, recepie FROM recepies WHERE name = '{rec_name}'")
+            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies WHERE name = '{rec_name}'")
         except sqlite3.IntegrityError as err: print(err)     
-        ans = cursor.fetchall()        
+        ans = cursor.fetchall()
         connection.commit()
         connection.close()
         return ans
@@ -106,12 +101,4 @@ class DB:
         connection.commit()
         connection.close()
         return ans
-
-
-
-        
-              
-    
-
-    
 

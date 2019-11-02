@@ -1,7 +1,8 @@
 import logging
-import db_class 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ConversationHandler
+from db_class import * 
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 cs_db = DB()
 cs_db.create_db()
@@ -60,13 +61,17 @@ def own_recipe_skip(bot,update):
 def get_rec_by_name(bot,update):
     update.message.reply_text("Введите название блюда: "
     ,reply_markup=ReplyKeyboardRemove())
-    name = update.message.text
+    return ('name')    
+
+def recipe_get_name(bot,update):
+    name = update.message.text    
     ans = cs_db.get_recepie_by_name(name)
     text_rec = []
     for i in ans:
         text_rec.append(f'Название: {i[0]} \nКатегория:{i[1]} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
     text_rec = '\n\n'.join(text_rec)
     update.message.reply_text(text_rec)
+    return ConversationHandler.END
 
 #TODO Функция поиска рецепта по ингредиентам
 """ def get_rec_by_ingr(bot,update):
