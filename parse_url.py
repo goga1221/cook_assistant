@@ -36,7 +36,7 @@ def get_full_recipe(html):
     return [s.strip('\n') for s in recipe]
 
 def insert_recepie(ingr,rec):
-    name = ingr.pop(0)
+    name = ingr.pop(0).lower
     category = 'категория'
     ingredients = ', '.join(ingr)
     recepie = ''

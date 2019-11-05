@@ -83,7 +83,7 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies WHERE name = '{rec_name}'")
+            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies WHERE name LIKE '%{rec_name}%'")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
@@ -95,7 +95,7 @@ class DB:
         cursor = connection.cursor()
         try:
             cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies \
-                 WHERE ingredients like '%{'%'.join(ingredients_list)}%'")
+                 WHERE ingredients LIKE '%{'%'.join(ingredients_list)}%'")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
