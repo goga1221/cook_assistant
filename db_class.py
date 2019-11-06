@@ -93,9 +93,11 @@ class DB:
     def get_recepie_by_ingredients(self, ingredients_list: list):
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
+        print(f"""SELECT name, category, ingredients, recepie \
+             FROM recepies WHERE ingredients LIKE ("%{'%") AND ingredients LIKE ("%'.join(ingredients_list)}%")""")
         try:
-            cursor.execute(f"SELECT name, category, ingredients, recepie  FROM recepies \
-                 WHERE ingredients LIKE '%{'%'.join(ingredients_list)}%'")
+            cursor.execute(f"""SELECT name, category, ingredients, recepie \
+             FROM recepies WHERE ingredients LIKE ("%{'%") AND ingredients LIKE ("%'.join(ingredients_list)}%")""")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
