@@ -59,7 +59,7 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute("""SELECT name, category, recepie, ingredients FROM recepies ORDER BY RANDOM() LIMIT 1""")
+            cursor.execute("""SELECT name, category, ingredients, recepie FROM recepies ORDER BY RANDOM() LIMIT 1""")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchone()
         connection.commit()
@@ -83,7 +83,7 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies WHERE name LIKE '%{rec_name}%'")
+            cursor.execute(f"SELECT name, category, ingredients, recepie  FROM recepies WHERE name LIKE '%{rec_name}%'")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
@@ -94,7 +94,7 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies \
+            cursor.execute(f"SELECT name, category, ingredients, recepie  FROM recepies \
                  WHERE ingredients LIKE '%{'%'.join(ingredients_list)}%'")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()

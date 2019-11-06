@@ -68,7 +68,8 @@ def recipe_get_name(bot,update):
     ans = cs_db.get_recepie_by_name(name)
     text_rec = []
     for i in ans:
-        text_rec.append(f'Название: {i[0].capitalize} \nКатегория:{i[1]} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
+        name = i[0]
+        text_rec.append(f'Название: {name.capitalize} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
     text_rec = '\n\n'.join(text_rec)
     update.message.reply_text(text_rec)
     return ConversationHandler.END
