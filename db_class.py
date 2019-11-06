@@ -83,7 +83,7 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, ingredients, recepie  FROM recepies WHERE name LIKE '%{rec_name.lower}%'")
+            cursor.execute(f"SELECT name, category, ingredients, recepie  FROM recepies WHERE name LIKE '%{rec_name.lower()}%'")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
