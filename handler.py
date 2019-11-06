@@ -19,7 +19,8 @@ def welc_user(bot,update):
 # Функция для Handler получить случайный рецепт
 def get_recipe(bot,update):
     res = cs_db.get_random_recepie()
-    text_rec = f'Название: {res[0]} \nИнгридиенты: {res[2]} \nРецепт: {res[3]}'    
+    
+    text_rec = f'Название: {res[0].capitalize()} \nКатегория: {res[1]} \nИнгридиенты: {res[2]} \nРецепт: {res[3]}'    
     update.message.reply_text(text_rec)
 
 # Функция для Handler справка
@@ -67,9 +68,8 @@ def recipe_get_name(bot,update):
     name = update.message.text    
     ans = cs_db.get_recepie_by_name(name)
     text_rec = []
-    for i in ans:
-        name = i[0]
-        text_rec.append(f'Название: {name.capitalize} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
+    for i in ans:        
+        text_rec.append(f'Название: {i[0].capitalize()} \nКатегория: {i[1]} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
     text_rec = '\n\n'.join(text_rec)
     update.message.reply_text(text_rec)
     return ConversationHandler.END

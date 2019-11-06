@@ -18,7 +18,7 @@ class DB:
 
         try:
             cursor.execute("""CREATE TABLE clients
-         (id integer PRIMARY KEY AUTOINCREMENT , name text)""")
+         (id integer PRIMARY KEY, name text)""")
         except sqlite3.OperationalError: print('table clients already exists')
 
         try:
@@ -83,7 +83,7 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, ingredients, recepie  FROM recepies WHERE name LIKE '%{rec_name}%'")
+            cursor.execute(f"SELECT name, category, ingredients, recepie  FROM recepies WHERE name LIKE '%{rec_name.lower}%'")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
@@ -102,3 +102,14 @@ class DB:
         connection.close()
         return ans
 
+    def client_subscription(self, id: int, name: str):        
+        connection = sqlite3.connect('cook_ass_db')
+        cursor = connection.cursor()
+        try:
+            cursor.execute(f"INSERT INTO clients (id, name) values ({id},'{name}')")
+            return 'Вы подписались!'      
+        except sqlite3.IntegrityError as err: 
+            print(err)
+            return 'Вы уже подписаны!'   
+        connection.commit()
+        connection.close()
