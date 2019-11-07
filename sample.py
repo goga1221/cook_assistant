@@ -4,10 +4,11 @@ from parse_url import *
 
 cs_db = DB() 
 cs_db.create_db()
-print("{795726498: 'g0ga_nik'}")
-print(cs_db.client_subscription(479236808, 'NiceParadiss'))
-id = 479236808
-name = 'NiceParadiss'
-cs_db.query(f"INSERT INTO clients (id, name) values ({id},'{name}')")
-print(cs_db.query(f"SELECT * FROM clients WHERE name = ('{name}') AND id = {id}"))
 
+cs_db.add_to_favourites(479236808, 'перловка с говядиной')
+cs_db.add_to_favourites(479236808, '"зубы вампира" из яблок и конфет')
+cs_db.add_to_favourites(777, '"зубы вампира" из яблок и конфет')
+print(cs_db.get_favourites(479236808))
+
+print(cs_db.get_recepie_by_ingredients(['Сметана','Майонез']))
+print(cs_db.get_recepie_by_ingredients(['Майонез','Сметана']))

@@ -66,13 +66,12 @@ class DB:
         connection.close()
         return ans
 
-    def get_favourites(self, client: str):
+    def get_favourites(self, id_client: int):
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies WHERE id in \
-            (SELECT id_recepie FROM favourites WHERE id_client = \
-            (SELECT id FROM clients WHERE name = '{client}'))")
+            cursor.execute(f"SELECT name, category, ingredients, recepie ingredients FROM recepies WHERE id IN \
+            (SELECT id_recepie FROM favourites WHERE id_client = {id_client} )") 
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
@@ -83,7 +82,7 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, ingredients, recepie  FROM recepies WHERE name LIKE '%{rec_name.lower()}%'")
+            cursor.execute(f"SELECT name, category, , recepie  FROM recepies WHERE name LIKE '%{rec_name.lower()}%'")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
@@ -108,10 +107,16 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"INSERT INTO clients (id, name) values ({id},'{name}')")
-            return 'Вы подписались!'      
-        except sqlite3.IntegrityError as err: 
-            print(err)
-            return 'Вы уже подписаны!'   
+            cursor.execute(f"INSERT INTO clients (id, name) VALUES ({id},'{name}')")   
+        except sqlite3.IntegrityError as err: print(err)
+        connection.commit()
+        connection.close()
+
+    def add_to_favourites(self, id_client: int, recepie_name: str):
+        connection = sqlite3.connect('cook_ass_db')
+        cursor = connection.cursor()
+        try:
+            cursor.execute(f"INSERT INTO favourites (id_client, id_recepie) VALUES ({id_client}, (SELECT id FROM recepies WHERE name = '{recepie_name}'))")    
+        except sqlite3.IntegrityError as err: print(err)
         connection.commit()
         connection.close()
