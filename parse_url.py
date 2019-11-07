@@ -1,8 +1,10 @@
 import requests
+from db_class import *
 from bs4 import BeautifulSoup
 
 
-
+cs_db = DB()
+cs_db.create_db()
 
 #получение html код страницы переданной в url
 def get_html(url):
@@ -33,17 +35,36 @@ def get_full_recipe(html):
         recipe.append(b)
     return [s.strip('\n') for s in recipe]
 
+def insert_recepie(ingr,rec):
+    name = ingr.pop(0)
+    category = 'категория'
+    ingredients = ', '.join(ingr)
+    recepie = ''
+    for i in range(len(rec)):
+        recepie = recepie + f'\n{i+1}) ' + rec[i]    
+    recepies_list = ([name,category,recepie,ingredients],)
+    print(recepies_list)    
+    cs_db.insert_many('recepies', recepies_list)
+
 def main():
-    
-    url = 'https://www.russianfood.com/recipes/recipe.php?rid=145626&ref=cro_t_8&token=55456869'
-    
-    all_ingr = get_all_ingr(get_html(url))
-    
-    print(all_ingr)
+    for i in range (9):
+        url = f'https://www.russianfood.com/recipes/recipe.php?rid=14280{i+1}'
+        print(url)
+        all_ingr = []
+        full_recipe = []
 
-    full_recipe = get_full_recipe(get_html(url))
+        try:
+            all_ingr = get_all_ingr(get_html(url))               
+            full_recipe = get_full_recipe(get_html(url))
+        except AttributeError as err: print(err)
 
-    print(full_recipe)
-  
+        try:
+            name = all_ingr[0]         
+            print('Инсертим в таблицу')
+            insert_recepie(all_ingr,full_recipe)
+        except IndexError as err: print(err)
+
+        cs_db.query(f"SELECT * FROM recepies WHERE name = '{name}'")
+
 if __name__ == '__main__':
     main()   
