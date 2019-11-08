@@ -18,7 +18,7 @@ class DB:
 
         try:
             cursor.execute("""CREATE TABLE clients
-         (id integer PRIMARY KEY, name text)""")
+         (id integer PRIMARY KEY AUTOINCREMENT , name text)""")
         except sqlite3.OperationalError: print('table clients already exists')
 
         try:
@@ -59,19 +59,20 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute("""SELECT name, category, ingredients, recepie FROM recepies ORDER BY RANDOM() LIMIT 1""")
+            cursor.execute("""SELECT name, category, ingredients,recepie FROM recepies ORDER BY RANDOM() LIMIT 1""")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchone()
         connection.commit()
         connection.close()
         return ans
 
-    def get_favourites(self, id_client: int):
+    def get_favourites(self, client: str):
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, ingredients, recepie ingredients FROM recepies WHERE id IN \
-            (SELECT id_recepie FROM favourites WHERE id_client = {id_client} )") 
+            cursor.execute(f"SELECT name, category, recepie, ingredients FROM recepies WHERE id in \
+            (SELECT id_recepie FROM favourites WHERE id_client = \
+            (SELECT id FROM clients WHERE name = '{client}'))")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
@@ -82,18 +83,17 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"SELECT name, category, , recepie  FROM recepies WHERE name LIKE '%{rec_name.lower()}%'")
+            cursor.execute(f"SELECT name, category, ingredients, recepie  FROM recepies WHERE name LIKE '%{rec_name.lower()}%'")
         except sqlite3.IntegrityError as err: print(err)     
         ans = cursor.fetchall()
         connection.commit()
         connection.close()
         return ans
 
+
     def get_recepie_by_ingredients(self, ingredients_list: list):
         connection = sqlite3.connect('cook_ass_db')
-        cursor = connection.cursor()
-        print(f"""SELECT name, category, ingredients, recepie \
-             FROM recepies WHERE ingredients LIKE ("%{'%") AND ingredients LIKE ("%'.join(ingredients_list)}%")""")
+        cursor = connection.cursor()        
         try:
             cursor.execute(f"""SELECT name, category, ingredients, recepie \
              FROM recepies WHERE ingredients LIKE ("%{'%") AND ingredients LIKE ("%'.join(ingredients_list)}%")""")
@@ -103,20 +103,18 @@ class DB:
         connection.close()
         return ans
 
-    def client_subscription(self, id: int, name: str):        
+    def client_subscription(self, id: int, username: str):        
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
-        try:
-            cursor.execute(f"INSERT INTO clients (id, name) VALUES ({id},'{name}')")   
-        except sqlite3.IntegrityError as err: print(err)
+        cursor.execute(f"INSERT INTO clients (id, name) values ({id},'{username}')")
         connection.commit()
-        connection.close()
+        connection.close()    
 
     def add_to_favourites(self, id_client: int, recepie_name: str):
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"INSERT INTO favourites (id_client, id_recepie) VALUES ({id_client}, (SELECT id FROM recepies WHERE name = '{recepie_name}'))")    
+            cursor.execute(f"INSERT INTO favourites (id_client, id_recepie) VALUES ({id_client}, (SELECT id FROM recepies WHERE name like '%{recepie_name.lower()}%'))")    
         except sqlite3.IntegrityError as err: print(err)
         connection.commit()
         connection.close()

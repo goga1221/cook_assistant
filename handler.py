@@ -4,36 +4,61 @@ from telegram.ext import ConversationHandler
 from db_class import * 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+
 cs_db = DB()
 cs_db.create_db()
 
 # Стартовое окно с клавиатурой
 def welc_user(bot,update):
-    text = 'Welcome'
+    text = 'Давай начнём! Выбери один из вариантов'
     logging.info(text)
     cook_key = ReplyKeyboardMarkup([['Получить случайный рецепт','Добавить свой рецепт'],
                                     ['Найти рецепт по названию','Найти рецепт по ингредиентам'],
-                                    ['Избранное', 'Справка']])
-    update.message.reply_text(text,reply_markup = cook_key)
+                                    ['Подписаться','Избранное']])
+    update.message.reply_text(text,reply_markup = cook_key,resize_keyboard=True)
 
 # Функция для Handler получить случайный рецепт
 def get_recipe(bot,update):
-    res = cs_db.get_random_recepie()
-    
-    text_rec = f'Название: {res[0].capitalize()} \nКатегория: {res[1]} \nИнгридиенты: {res[2]} \nРецепт: {res[3]}'    
-    update.message.reply_text(text_rec)
+    res = cs_db.get_random_recepie()    
+    inlinekeyboard = [[InlineKeyboardButton("Добавить в избранное", callback_data='1')]]
+    reply_markup = InlineKeyboardMarkup(inlinekeyboard)
+    text_rec = f'<b>Название: {res[0].capitalize()}</b> \nКатегория: {res[1]} \nИнгридиенты: {res[2]} \nРецепт: {res[3]}'                    
+    update.message.reply_text(text_rec,reply_markup=reply_markup,resize_keyboard=True, parse_mode = 'HTML')
 
 # Функция для Handler справка
-def send_help(bot,update):
-    text_help = ("""Получить рецепт - для получения случайного рецепта 
-Добавить свой рецепт - для добавления нового
-Избранное - для проверки своих избранных""")
-    update.message.reply_text(text_help)
+def subscribe(bot,update):
+    user_info = update.message.from_user
+    id = int(user_info['id'])
+    try:
+        cs_db.client_subscription(id,user_info['username'])
+        update.message.reply_text('Вы подписались!')
+    except:
+        update.message.reply_text('Уже подписаны!')
+    print (user_info['id'],user_info['username'])
+       
+    
 
+def send_help(bot,update):
+    update.message.reply_text(f' Здравствуйте! Я бот призванный помочь вам \n в приготовлении различных блюд \n /recipe для получения случайного блюда \n /subscribe для регистрации \n /search_by_name для поиска рецепта по имени \n /add_recipe для добавления своего рецепта \n /info для получения справки')
+                     
 # Функция для Handler избранное
 def get_favorite(bot,update):
-    text_fav = 'Избранное'
-    update.message.reply_text(text_fav)
+    cook_key = ReplyKeyboardMarkup([['Получить случайный рецепт','Добавить свой рецепт'],
+                                    ['Найти рецепт по названию','Найти рецепт по ингредиентам'],
+                                    ['Подписаться','Избранное']])
+    user_info = update.message.from_user
+    client_name = user_info['username']
+    ans = cs_db.get_favourites(client_name)
+    text_rec = []
+    for i in ans:        
+        text_rec.append(f'<b>Название: {i[0].capitalize()}</b> \nКатегория: {i[1]} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
+    if text_rec:    
+        text_rec = '\n\n'.join(text_rec)
+        update.message.reply_text(text_rec,reply_markup = cook_key, parse_mode = 'HTML')
+    else:
+        update.message.reply_text('К сожалению список пуст, /recipe для вывода случайного')
+        update.message.reply_text(reply_markup = cook_key)
+    
 
 # Функции ConversationHandler для добавление своего рецепта
 def own_recipe_add (bot,update):
@@ -42,21 +67,26 @@ def own_recipe_add (bot,update):
     return 'ingredient'   
 
 
-def own_recipe_get_ingr(bot, update, comment):
-    
-    update.message.reply_text(
-            """Добавьте ингридиенты для вашего блюда либо 
-               /end чтобы завершить введение""")
-    return('formula')
+def own_recipe_get_ingr(bot, update):
+    update.message.reply_text("Добавьте ингридиенты для вашего блюда через запятую "
+               ,reply_markup=ReplyKeyboardRemove())
+    return 'formula'
 
 def own_recipe_full(bot, update):
-    update.message.reply_text('весь рецепт')
-    return ConversationHandler.END
+    update.message.reply_text('Введите рецепт приготовления ',reply_markup=ReplyKeyboardRemove())
+    return 'end'
 
 def own_recipe_skip(bot,update):
-    text_skip = 'конец ввода'
-    update.message.reply_text(text_skip)
-    return ConversationHandler.END   
+    cook_key = ReplyKeyboardMarkup([['Получить случайный рецепт','Добавить свой рецепт'],
+                                    ['Найти рецепт по названию','Найти рецепт по ингредиентам'],
+                                    ['Подписаться','Избранное']])
+    text_skip = 'Рецепт Добавлен!'
+    update.message.reply_text(text_skip,reply_markup = cook_key) 
+    return ConversationHandler.END 
+
+def unknown(bot,update):
+    update.message.reply_text('Введите заново')
+
 
 # Функция поиска рецепта по названию
 def get_rec_by_name(bot,update):
@@ -65,20 +95,56 @@ def get_rec_by_name(bot,update):
     return ('name')    
 
 def recipe_get_name(bot,update):
+    cook_key = ReplyKeyboardMarkup([['Получить случайный рецепт','Добавить свой рецепт'],
+                                    ['Найти рецепт по названию','Найти рецепт по ингредиентам'],
+                                    ['Подписаться','Избранное']])
     name = update.message.text    
     ans = cs_db.get_recepie_by_name(name)
     text_rec = []
     for i in ans:        
-        text_rec.append(f'Название: {i[0].capitalize()} \nКатегория: {i[1]} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
-    text_rec = '\n\n'.join(text_rec)
-    update.message.reply_text(text_rec)
+        text_rec.append(f'<b>Название: {i[0].capitalize()}</b> \nКатегория: {i[1]} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
+    if text_rec:    
+        text_rec = '\n\n'.join(text_rec)
+        update.message.reply_text(text_rec,reply_markup = cook_key, parse_mode = 'HTML')
+    else:
+        update.message.reply_text('К сожалению такого рецепта нету, /recipe для вывода случайного',reply_markup = cook_key)
     return ConversationHandler.END
 
-#TODO Функция поиска рецепта по ингредиентам
-""" def get_rec_by_ingr(bot,update):
-    update.message.reply_text("Введите ингридиенты: "
-    ,reply_markup=ReplyKeyboardRemove())
+# Функция поиска рецепта по ингредиентам
+def get_rec_by_ingr(bot,update):
+    cook_key = ReplyKeyboardMarkup([['Получить случайный рецепт','Добавить свой рецепт'],
+                                    ['Найти рецепт по названию','Найти рецепт по ингредиентам'],
+                                    ['Подписаться','Избранное']])
     ingredients = update.message.text
-    res = cs_db.get_recepie_by_ingredients(ingredients)
-    text_rec = f'Название: {res[0]} \nКатегория:{res[1]} \nИнгридиенты: {res[2]} \nРецепт: {res[3]}'
-    update.message.reply_text(text_rec) """
+    print(ingredients)
+    ingredients_list = []
+    for i in ingredients.split(' '):    
+        i = i.title()
+        ingredients_list.append(i)
+    res = cs_db.get_recepie_by_ingredients(ingredients_list)
+    text_rec = []
+    for i in res:        
+        text_rec.append(f'<b>Название: {i[0].capitalize()}</b> \nКатегория: {i[1]} \nИнгредиенты: {i[2]} \nРецепт: {i[3]} ')
+    if text_rec:    
+        text_rec = '\n\n'.join(text_rec)
+        update.message.reply_text(text_rec,reply_markup = cook_key, parse_mode = 'HTML')
+    else:
+        update.message.reply_text('К сожалению такого рецепта нету, /recipe для вывода случайного',reply_markup = cook_key)
+    
+def get_ingr (bot,update):
+    update.message.reply_text("Введите ингредиенты через пробел: "
+    ,reply_markup=ReplyKeyboardRemove())
+    return 'ingredient'
+
+def add_fav(bot,update):
+    query = update.callback_query
+    data = int(query.message.chat.id)
+    name = ((((query.message.text).split('\n')[0]).split(': ')[1]).lower()).strip()
+    cs_db.add_to_favourites(data, name)
+    text = "Рецепт добавлен, /favorite для просмотра избранных"
+    bot.edit_message_text(text=text, chat_id=query.message.chat.id,
+            message_id=query.message.message_id)
+    print(data, name)
+    
+
+
