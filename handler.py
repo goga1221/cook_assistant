@@ -46,8 +46,22 @@ def send_help(bot,update):
                      
 # Функция для Handler избранное
 def get_favorite(bot,update):
-    text_fav = 'Избранное'
-    update.message.reply_text(text_fav)
+    cook_key = ReplyKeyboardMarkup([['Получить случайный рецепт','Добавить свой рецепт'],
+                                    ['Найти рецепт по названию','Найти рецепт по ингредиентам'],
+                                    ['Подписаться','Избранное']])
+    user_info = update.message.from_user
+    client_name = user_info['username']
+    ans = cs_db.get_favourites(client_name)
+    text_rec = []
+    for i in ans:        
+        text_rec.append(f'Название: {i[0].capitalize()} \nКатегория: {i[1]} \nИнгридиенты: {i[2]} \nРецепт: {i[3]}')
+    if text_rec:    
+        text_rec = '\n\n'.join(text_rec)
+        update.message.reply_text(text_rec,reply_markup = cook_key)
+    else:
+        update.message.reply_text('К сожалению список пуст, /recipe для вывода случайного')
+        update.message.reply_text(reply_markup = cook_key)
+    
 
 # Функции ConversationHandler для добавление своего рецепта
 def own_recipe_add (bot,update):
@@ -96,8 +110,7 @@ def recipe_get_name(bot,update):
         text_rec = '\n\n'.join(text_rec)
         update.message.reply_text(text_rec,reply_markup = cook_key)
     else:
-        update.message.reply_text('К сожалению такого рецепта нету, /recipe для вывода случайного')
-        update.message.reply_text(reply_markup = cook_key)
+        update.message.reply_text('К сожалению такого рецепта нету, /recipe для вывода случайного',reply_markup = cook_key)
     return ConversationHandler.END
 
 # Функция поиска рецепта по ингредиентам
@@ -105,14 +118,32 @@ def get_rec_by_ingr(bot,update):
     cook_key = ReplyKeyboardMarkup([['Получить случайный рецепт','Добавить свой рецепт'],
                                     ['Найти рецепт по названию','Найти рецепт по ингредиентам'],
                                     ['Подписаться','Избранное']])
-    update.message.reply_text("Введите ингридиенты: "
-    ,reply_markup = cook_key)
     ingredients = update.message.text
     res = cs_db.get_recepie_by_ingredients(ingredients)
-    text_rec = f'Название: {res[0]} \nКатегория:{res[1]} \nИнгридиенты: {res[2]} \nРецепт: {res[3]}'
+    text_rec = []
+    for i in res:        
+        text_rec.append(f'Название: {i[0].capitalize()} \nКатегория: {i[1]} \nРецепт: {i[2]} \nИнгредиенты: {i[3]} ')
+    if text_rec:    
+        text_rec = '\n\n'.join(text_rec)
+        update.message.reply_text(text_rec,reply_markup = cook_key)
+    else:
+        update.message.reply_text('К сожалению такого рецепта нету, /recipe для вывода случайного',reply_markup = cook_key)
     update.message.reply_text(text_rec,reply_markup = cook_key)
 
 def get_ingr (bot,update):
-    update.message.reply_text("Введите название блюда: "
+    update.message.reply_text("Введите ингредиенты: "
     ,reply_markup=ReplyKeyboardRemove())
-    return 'ingredient'     
+    return 'ingredient'
+
+def add_fav(bot,update):
+    query = update.callback_query
+    data = int(query.message.chat.id)
+    name = ((((query.message.text).split('\n')[0]).split(': ')[1]).lower()).strip()
+    cs_db.add_to_favourites(data, name)
+    text = "Рецепт добавлен, /favorite для просмотра избранных"
+    bot.edit_message_text(text=text, chat_id=query.message.chat.id,
+            message_id=query.message.message_id)
+    print(data, name)
+    
+
+

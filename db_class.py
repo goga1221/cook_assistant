@@ -110,3 +110,11 @@ class DB:
         connection.commit()
         connection.close()    
 
+    def add_to_favourites(self, id_client: int, recepie_name: str):
+        connection = sqlite3.connect('cook_ass_db')
+        cursor = connection.cursor()
+        try:
+            cursor.execute(f"INSERT INTO favourites (id_client, id_recepie) VALUES ({id_client}, (SELECT id FROM recepies WHERE name like '%{recepie_name.lower()}%'))")    
+        except sqlite3.IntegrityError as err: print(err)
+        connection.commit()
+        connection.close()

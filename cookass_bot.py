@@ -1,9 +1,9 @@
 import logging
 from telegram import ReplyKeyboardMarkup
-from telegram.ext import Updater, ConversationHandler, CommandHandler
-from telegram.ext import MessageHandler, RegexHandler, Filters
+from telegram.ext import Updater, ConversationHandler, CommandHandler,MessageHandler, RegexHandler, Filters,\
+    CallbackQueryHandler
 from handler import welc_user, get_recipe, subscribe, get_favorite,unknown, own_recipe_add, own_recipe_get_ingr,\
-     own_recipe_full, own_recipe_skip,get_rec_by_name, send_help,get_rec_by_ingr, get_ingr,recipe_get_name
+     own_recipe_full, own_recipe_skip,get_rec_by_name, send_help,get_rec_by_ingr, get_ingr,recipe_get_name,add_fav
 from settings import USER_EMOJI
 from proxy import TOKEN, PROXY
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
@@ -29,6 +29,8 @@ def main():
     disp.add_handler(CommandHandler("subscribe", subscribe))
     disp.add_handler(CommandHandler("search_by_name", get_rec_by_name))
     disp.add_handler(CommandHandler("add_recipe", own_recipe_add))
+    disp.add_handler(CommandHandler("favorite", get_favorite))
+    disp.add_handler(CallbackQueryHandler(add_fav))
 
 
     own_recipe=ConversationHandler(
@@ -51,10 +53,11 @@ def main():
     
     disp.add_handler(find_rec_by_name)
 
+
     find_rec_by_ingr=ConversationHandler(
-        entry_points=[RegexHandler('^(Найти рецепт по ингредиентам)$', get_rec_by_ingr)],
+        entry_points=[RegexHandler('^(Найти рецепт по ингредиентам)$', get_ingr)],
         states={
-            "ingredient": [MessageHandler(Filters.text, get_ingr),]},            
+            "ingredient": [MessageHandler(Filters.text, get_rec_by_ingr),]},            
         fallbacks=[]
     )
     disp.add_handler(find_rec_by_ingr)
@@ -64,13 +67,3 @@ def main():
 
 if __name__=="__main__":
     main() 
-#TODO Функция поиска рецепта по ингредиентам
-'''
- find_rec_by_ingr=ConversationHandler(
-        entry_points=[RegexHandler('^(Найти рецепт по ингредиентам)$', get_rec_by_ingr)],
-        states={
-            "ingredient": [MessageHandler(Filters.text, get_ingr),]},            
-        fallbacks=[]
-    )
-    disp.add_handler(find_rec_by_ingr)
-'''  
