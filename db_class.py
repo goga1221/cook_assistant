@@ -124,8 +124,8 @@ class DB:
         connection = sqlite3.connect('cook_ass_db')
         cursor = connection.cursor()
         try:
-            cursor.execute(f"INSERT INTO recepies (name, recepie, ingredients)\
-                 VALUES ('{recepie[0]}', '{recepie[1]}', '{recepie[2]}')")  
+            cursor.execute(f"INSERT INTO recepies (name, category, ingredients, recepie)\
+                 VALUES ('{recepie[0]}', '{recepie[1]}', '{recepie[2]}', '{recepie[3]}')")  
             cursor.execute(f"INSERT INTO favourites (id_client, id_recepie, clients_recepie) VALUES ({id_client},\
                 (SELECT id FROM recepies WHERE name like '%{recepie[0]}%'), true )")
         except sqlite3.IntegrityError as err: print(err)
